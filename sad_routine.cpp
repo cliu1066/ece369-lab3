@@ -1,11 +1,10 @@
-#include <iostream>
-using namespace std;
+#include "sad_routine.h"
 
 /* Objective: Compute sum of absolute difference for given window size 
  * @param: width, height of window, start x, start y
  * @return: SAD of window
  */
-int windowSad(int width, int height, int x, int y, int window[4][8], int frame[16][16]) {
+int windowSad(int width, int height, int x, int y, int window[2][2], int frame[4][4]) {
     int w = 0;
     int h = 0;
     int sad = 0;
@@ -37,6 +36,7 @@ int windowSad(int width, int height, int x, int y, int window[4][8], int frame[1
     return sad;
 }
 
+/*
 int main()
 {
     int window[4][8] = {
@@ -67,4 +67,4 @@ int main()
     int sad = windowSad(2, 2, 0, 0, window, frame);
 
     std::cout << sad;
-}
+}*/

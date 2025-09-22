@@ -6,42 +6,30 @@ C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS
 Code, Compile, Run and Debug online from anywhere in world.
 
 *******************************************************************************/
-#include <iostream>
-#include <vector>
+#include "scan_pattern.h"
 
-int main()
+void scanning(int winRows, int winCols, int frameRows, int frameCols,
+             int window[4][8], int frame[16][16], int* result, int* v0, int* v1)
 {
     int row = 0, col = 0;
-    /*cout << "input the row of first element for the window\n";
-    cin >> row;
-    
-    cout << "input the column of first element for the window\n";
-    cin >> col;
-    */
-    
-    cout << "input the window row size:\n";
-    cin >> winrRows;
-    
-    cout << "input the window column size:\n";
-    cin >> winCols;
-    
-    cout << "input the frame row size:\n";
-    cin >> frameRows;
-    
-    cout << "input the frame column size:\n";
-    cin >> frameCols;
-    
-    //FIXME
-    //compare first SAD value then move to the right
+
+    int minSad = windowSad(winCols, winRows, row, col, window, frame);
+    int currSad = 0;
+
     col += 1;
     
     bool moveDown = true;
+
     //initialize the min SAD location for the window as the start point
     int minSadAdd[2] = {row, col};
     while ((row != frameRows - winRows) && (col != frameCols - winCols)) {
-        //FIXME
-        //compare SAD at location to minSad, if less, set current
-        //SAD to the minimum and save address to minSadAdd
+        currSad = windowSad(winCols, winRows, row, col, window, frame);
+        if (currSad <= minSad) {
+            minSad = currSad;
+            *result = currSad;
+            *v0 = row;
+            *v1 = col;
+        }
         
         if (moveDown) {
             //reach bound to start moving up when last row is reached
@@ -84,13 +72,12 @@ int main()
             }
         }
         
-        
     }
     
-    //FIXME    
-    //compare SAD at final location to minSad, if less, set current
-    //SAD to the minimum and save address to minSadAdd
-    
-
-    return 0;
+    if (currSad <= minSad) {
+            minSad = currSad;
+            *result = currSad;
+            *v0 = row;
+            *v1 = col;
+    }
 }
