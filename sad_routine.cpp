@@ -1,4 +1,5 @@
 #include <iostream>
+using namespace std;
 
 /* Objective: Compute sum of absolute difference for given window size 
  * @param: width, height of window, start x, start y
