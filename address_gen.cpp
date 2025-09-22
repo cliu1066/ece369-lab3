@@ -4,11 +4,7 @@ Program description: Implementation of the address generation for reading the co
 elements based on the current position in the frame.
 */
 
-#include <vector>
-#include <stdexcept>
-#include <iostream>
-#include <iomanip>
-using namespace std;
+#include "address_gen.h"
 
 // Linear index in a row-major 1D frame
 inline size_t lin_idx(int row, int col, int frame_w) {
