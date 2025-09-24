@@ -1,14 +1,4 @@
-/******************************************************************************
-
-Welcome to GDB Online.
-GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
-C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
-Code, Compile, Run and Debug online from anywhere in world.
-
-*******************************************************************************/
 #include "scan_pattern.h"
-#include "sad_routine.h"
-#include "address_gen.h"
 
 void scanning(int winRows, int winCols, int frameRows, int frameCols,
              int* window, int* frame, int* result, int* v0, int* v1)
@@ -16,7 +6,8 @@ void scanning(int winRows, int winCols, int frameRows, int frameCols,
     int row = 0, col = 0;
     int minSad = windowSad(winCols, winRows, frameCols, frameRows, 
                            row, col, window, frame);
-    int currSad = 0;
+    int currSad = windowSad(winCols, winRows, frameCols, frameRows, 
+                           row, col, window, frame);
 
     col += 1;
     
@@ -24,7 +15,7 @@ void scanning(int winRows, int winCols, int frameRows, int frameCols,
 
     //initialize the min SAD location for the window as the start point
     int minSadAdd[2] = {row, col};
-    while ((row != frameRows - winRows) && (col != frameCols - winCols)) {
+    while ((row != frameRows - winRows + 1) && (col != frameCols - winCols + 1)) {
         currSad = windowSad(winCols, winRows, frameCols, frameRows, 
                            row, col, window, frame);
         if (currSad <= minSad) {
