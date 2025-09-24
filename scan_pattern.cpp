@@ -7,13 +7,14 @@ Code, Compile, Run and Debug online from anywhere in world.
 
 *******************************************************************************/
 #include "scan_pattern.h"
+#include "sad_routine.h"
 
 void scanning(int winRows, int winCols, int frameRows, int frameCols,
              int* window, int* frame, int* result, int* v0, int* v1)
 {
     int row = 0, col = 0;
-
-    int minSad = windowSad(winCols, winRows, row, col, window, frame);
+    int minSad = windowSad(winCols, winRows, frameCols, frameRows, 
+                           row, col, window, frame);
     int currSad = 0;
 
     col += 1;
@@ -23,7 +24,8 @@ void scanning(int winRows, int winCols, int frameRows, int frameCols,
     //initialize the min SAD location for the window as the start point
     int minSadAdd[2] = {row, col};
     while ((row != frameRows - winRows) && (col != frameCols - winCols)) {
-        currSad = windowSad(winCols, winRows, row, col, window, frame);
+        currSad = windowSad(winCols, winRows, frameCols, frameRows, 
+                           row, col, window, frame);
         if (currSad <= minSad) {
             minSad = currSad;
             *result = currSad;

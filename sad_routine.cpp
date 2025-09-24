@@ -37,20 +37,3 @@ int getArrayPos(int row, int col, int width) {
     int add = mult + col;
     return add;
 }
-
-int main() {
-    int window[] = {0, 3,
-                    4, 0};
-    int frame[] = {1, 1, 1,
-                   1, 1, 1,
-                   1, 1, 0};
-
-    int winWidth = 2; int winHeight = 2;
-    int frameWidth = 3; int frameHeight = 3;
-
-    int row = 1; int col = 1;
-
-    int sad = windowSad(winWidth, winHeight, frameWidth, frameHeight, row, col, window, frame);
-
-    std::cout << sad;
-}
