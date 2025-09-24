@@ -3,6 +3,9 @@
 
 #include <iostream>
 
-int windowSad(int width, int height, int x, int y, int window[2][2], int frame[4][4]);
+int windowSad(int winWidth, int winHeight, int frameWidth, int frameHeight, 
+              int frameRow, int frameCol, int window[], int frame[]);
+              
+int getArrayPos(int row, int col, int width);
 
 #endif
