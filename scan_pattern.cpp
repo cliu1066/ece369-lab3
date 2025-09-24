@@ -9,7 +9,7 @@ Code, Compile, Run and Debug online from anywhere in world.
 #include "scan_pattern.h"
 
 void scanning(int winRows, int winCols, int frameRows, int frameCols,
-             int window[32], int frame[256], int* result, int* v0, int* v1)
+             int* window, int* frame, int* result, int* v0, int* v1)
 {
     int row = 0, col = 0;
 
