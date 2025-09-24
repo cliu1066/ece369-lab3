@@ -1,7 +1,6 @@
 #ifndef ADDRESS_GEN_H
 #define ADDRESS_GEN_H
 
-#include <vector>
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>
