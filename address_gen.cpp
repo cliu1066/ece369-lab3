@@ -9,11 +9,10 @@ Task 2: Copy a wh×ww block starting at top-left (r0, c0) from a row-major 1D fr
 - Returns 0 on success, non-zero on invalid inputs.
 */
 
-#include <stddef.h>  // for size_t (not strictly necessary if you prefer plain int)
-#include <limits.h>  // optional, only if you want to check for negatives robustly
-
+#include <stddef.h>  
+#include <limits.h>  
 /* 
- * Parameters:
+  Parameters:
     frame     : pointer to the first element of the frame (size = frame_h * frame_w)
     frame_h   : number of rows in the frame
     frame_w   : number of columns in the frame
@@ -23,10 +22,10 @@ Task 2: Copy a wh×ww block starting at top-left (r0, c0) from a row-major 1D fr
                 (caller must ensure it has space for wh * ww ints)
  
 * Returns:
- *   0  -> success
- *  -1  -> bad dimensions (negative or zero)
- *  -2  -> window exceeds the frame bounds
- *  -3  -> null pointer(s)
+    0  -> success
+   -1  -> bad dimensions (negative or zero)
+   -2  -> window exceeds the frame bounds
+   -3  -> null pointer(s)
  */
 int copy_block_from_frame(
     const int* frame,
@@ -35,9 +34,9 @@ int copy_block_from_frame(
     int wh, int ww,
     int* out_block)
 {
-    /* -------------------- basic validation -------------------- */
+    /* check for null pointers */
     if (frame == 0 || out_block == 0) {
-        return -3; /* null pointers */
+        return -3; 
     }
 
     /* dimensions must be positive; start coordinates must be non-negative */
