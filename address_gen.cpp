@@ -1,37 +1,79 @@
 /*
-Created by Barack M. on 9/15/2025.
-Program description: Implementation of the address generation for reading the corresponding frame
-elements based on the current position in the frame.
+Task 2: Copy a wh×ww block starting at top-left (r0, c0) from a row-major 1D frame
+        into a caller-provided 1D output buffer.
+
+- Row-major 1D layout means: element at (row, col) in a frame of width W
+  lives at flat index row*W + col.
+
+- No static, no casting, no vectors, no C++ features.
+- Returns 0 on success, non-zero on invalid inputs.
 */
 
-#include "address_gen.h"
+#include <stddef.h>  // for size_t (not strictly necessary if you prefer plain int)
+#include <limits.h>  // optional, only if you want to check for negatives robustly
 
-// Linear index in a row-major 1D frame
-inline size_t lin_idx(int row, int col, int frame_w) {
-    return static_cast<size_t>(row) * static_cast<size_t>(frame_w)
-         + static_cast<size_t>(col);
-}
+/* 
+ * Parameters:
+    frame     : pointer to the first element of the frame (size = frame_h * frame_w)
+    frame_h   : number of rows in the frame
+    frame_w   : number of columns in the frame
+    r0, c0    : top-left coordinate of the block to copy
+    wh, ww    : block height and width
+   out_block : pointer to the first element of the destination buffer
+                (caller must ensure it has space for wh * ww ints)
+ 
+* Returns:
+ *   0  -> success
+ *  -1  -> bad dimensions (negative or zero)
+ *  -2  -> window exceeds the frame bounds
+ *  -3  -> null pointer(s)
+ */
+int copy_block_from_frame(
+    const int* frame,
+    int frame_h, int frame_w,
+    int r0, int c0,
+    int wh, int ww,
+    int* out_block)
+{
+    /* -------------------- basic validation -------------------- */
+    if (frame == 0 || out_block == 0) {
+        return -3; /* null pointers */
+    }
 
-// Task 2: copy the wh×ww block at top-left (r0,c0) from frame into out_block
-void copy_block_from_frame(const int* frame,
-                           int frame_h, int frame_w,
-                           int r0, int c0,
-                           int wh, int ww,
-                           vector<int>& out_block)
-{   //Some exceptions to get the correct window - (Task 3 should adhere to this)
-    if (r0 < 0 || c0 < 0 || wh <= 0 || ww <= 0) throw invalid_argument("bad dims");
-    if (r0 + wh > frame_h || c0 + ww > frame_w) throw out_of_range("window exceeds frame");
+    /* dimensions must be positive; start coordinates must be non-negative */
+    if (frame_h <= 0 || frame_w <= 0 || wh <= 0 || ww <= 0 || r0 < 0 || c0 < 0) {
+        return -1; /* bad dims */
+    }
 
-    out_block.resize(static_cast<size_t>(wh) * static_cast<size_t>(ww));
+    /* ensure requested block fits entirely inside the frame */
+    if (r0 + wh > frame_h || c0 + ww > frame_w) {
+        return -2; /* window exceeds frame */
+    }
 
-    // For loops for copying
-    for (int i = 0; i < wh; ++i) {
-        const size_t base = lin_idx(r0 + i, c0, frame_w);  // frame row start
-        const size_t dst_row = static_cast<size_t>(i) * ww;     // out row start
-        for (int j = 0; j < ww; ++j) {
-            out_block[dst_row + j] = frame[base + j];
+
+    /*
+       We iterate over each row of the block (i = 0..wh-1)
+       and each column of the block (j = 0..ww-1).
+
+       Source index into the big frame (row-major 1D):
+           src = (r0 + i) * frame_w + (c0 + j)
+
+       Destination index into the compact out_block (also row-major):
+           dst = i * ww + j
+    */
+    int i, j;
+    for (i = 0; i < wh; i++) {
+        // compute the starting flat index of the current source row once
+        int src_row_start = (r0 + i) * frame_w + c0;
+
+        //compute the starting flat index of the current destination row
+        int dst_row_start = i * ww;
+
+        // copy one row of ww element
+        for (j = 0; j < ww; j++) {
+            out_block[dst_row_start + j] = frame[src_row_start + j];
         }
     }
+
+    return 0; 
 }
-
-
