@@ -24,6 +24,10 @@ void scanning(int winRows, int winCols, int frameRows, int frameCols,
             *v0 = row;
             *v1 = col;
         }
+        //reach bottom right corner
+        if ((row == frameRows - winRows) && (col == frameCols - winCols)) {
+            break;
+        }
         
         if (moveDown) {
             //reach bound to start moving up when last row is reached
