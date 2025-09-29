@@ -13,8 +13,6 @@ void scanning(int winRows, int winCols, int frameRows, int frameCols,
     
     bool moveDown = true;
 
-    //initialize the min SAD location for the window as the start point
-    int minSadAdd[2] = {row, col};
     while ((row != frameRows - winRows + 1) && (col != frameCols - winCols + 1)) {
         currSad = windowSad(winCols, winRows, frameCols, frameRows, 
                            row, col, window, frame);
