@@ -9,12 +9,16 @@ int windowSad(int winWidth, int winHeight, int frameWidth, int frameHeight,
     while (h < winHeight) {
         w = 0;
         while (w < winWidth) {
-            int winPos = getArrayPos(h, w, winWidth);
+            //int winPos = getArrayPos(h, w, winWidth);
+            int t1 = h * winWidth;
+            int winPos = t1 + w;
             int currWin = window[winPos];
 
             int currFrameRow = frameRow + h;
             int currFrameCol = frameCol + w;
-            int framePos = getArrayPos(currFrameRow, currFrameCol, frameWidth);
+            //int framePos = getArrayPos(currFrameRow, currFrameCol, frameWidth);
+            t1 = currFrameRow * frameWidth;
+            int framePos = t1 + currFrameCol;
             int currFrame = frame[framePos];
 
             int diff = currWin - currFrame;
@@ -32,8 +36,8 @@ int windowSad(int winWidth, int winHeight, int frameWidth, int frameHeight,
     return sad;
 }
 
-int getArrayPos(int row, int col, int width) {
+/*int getArrayPos(int row, int col, int width) {
     int mult = row * width;
     int add = mult + col;
     return add;
-}
+}*/

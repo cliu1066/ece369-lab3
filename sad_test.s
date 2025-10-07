@@ -14,22 +14,22 @@ loopRow:
 loopCol:
 	bge $t2, $s3, nextRow
 		
-	mul $t0, $t3, $s3	
-	add $t0, $t0, $t2	
+# Compute window index: t0 = (t3 * s3 + t2) * 4 + a2
+mul  $t0, $t3, $s3        # t0 = pr * winCols
+add  $t0, $t0, $t2        # t0 = pr * winCols + pc
+sll  $t0, $t0, 2          # t0 *= 4 (word offset)
+add  $t0, $t0, $a2        # t0 = &window[pr][pc]
+lw   $t5, 0($t0)          # t5 = windowVal
 
-	sll $t0, $t0, 2		
-	add $t0, $t0, $a2
-	lw $t5, 0($t0)		
-
-	add $t6, $s4, $t3	
-	add $t7, $s5, $t2	
-
-	mul $t0, $t6, $s1	
-	add $t0, $t0, $t7	
-
-	sll $t0, $t0, 2		
-	add $t0, $t0, $a1
-	lw $t8, 0($t0)		
+# Compute frame index: t0 = ((s4 + t3) * s1 + (s5 + t2)) * 4 + a1
+add  $t6, $s4, $t3        # t6 = row + pr
+mul  $t0, $t6, $s1        # t0 = (row + pr) * frameCols
+add  $t7, $s5, $t2        # t7 = col + pc
+add  $t0, $t0, $t7        # t0 = linear index in frame
+sll  $t0, $t0, 2          # t0 *= 4 (word offset)
+add  $t0, $t0, $a1        # t0 = &frame[row+pr][col+pc]
+lw   $t8, 0($t0)          # t8 = frameVal
+	
 
 	sub $t9, $t5, $t8	
 	bltz $t9, negSad
