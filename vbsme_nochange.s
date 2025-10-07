@@ -795,7 +795,7 @@ print_result:
 vbsme:
     # Prologue: save callee-saved regs (we use s0-s7)
     # Reserve 40 bytes for 10 registers (8 s-registers, $ra, and possible alignment/padding) 
-    addiu   $sp, $sp, -40
+    addi   $sp, $sp, -40
     sw      $ra, 36($sp)
     sw      $s0, 32($sp)
     sw      $s1, 28($sp)
@@ -815,86 +815,85 @@ vbsme:
     # Finding the scan limits
     # store $s4, $s5 in a temporary storage - Andrew
 
-    subu    $s4, $s0, $s2     # s4 = maxRow (i-k)
-    subu    $s5, $s1, $s3     # s5 = maxCol (j-l)
+    sub    $s4, $s0, $s2     # s4 = maxRow (i-k)
+    sub    $s5, $s1, $s3     # s5 = maxCol (j-l)
 
     # Initilizing the best result and current position
-    li      $t8, 0x7fffffff   # t8 = minSad = "infinity" 
-    move    $s6, $zero        # s6 = bestRow 
-    move    $s7, $zero        # s7 = bestCol
-    move    $t0, $zero        # t0 = row = 0
-    move    $t1, $zero        # t1 = col = 0
-    li      $t2, 1            # t2 = dirDown (1 => moving down-left; 0 => up-right)
+    addi    $t8, $zero, 0x7fffffff   # t8 = minSad = "infinity" 
+    addi    $s6, $zero, 0        # s6 = bestRow 
+    addi    $s7, $zero, 0        # s7 = bestCol
+    addi    $t0, $zero, 0        # t0 = row = 0
+    addi    $t1, $zero, 0        # t1 = col = 0
+    addi    $t2, $zero, 1            # t2 = dirDown (1 => moving down-left; 0 => up-right)
 
     # We loop until we evaluate the last cell (maxRow, maxCol)
     # We use a do-while pattern: compute SAD -> update best -> compute next (row,col) -> if past last, stop.
 
 ZZ_LOOP_EVAL:
     #  Compute SAD(row=t0, col=t1) 
-    move    $t9, $zero        # t9 = running SAD = 0
-    move    $t3, $zero        # t3 = pr = 0 (window row index)
+    addi    $t9, $zero, 0        # t9 = running SAD = 0
+    addi    $t3, $zero, 0        # t3 = pr = 0 (window row index)
 
 SAD_ROW_LOOP:
     beq     $t3, $s2, SAD_DONE    # if pr == k -> done SAD
-    move    $t4, $zero            # t4 = pc = 0 (window col index)
+    addi    $t4, $zero, 0            # t4 = pc = 0 (window col index)
 
 SAD_COL_LOOP:
     beq     $t4, $s3, SAD_ROW_NEXT    # if pc == l -> next window row
 
     # Compute frame index: (row+pr)*j + (col+pc) 
-    addu    $t5, $t0, $t3        # t5 = row + pr
+    add    $t5, $t0, $t3        # t5 = row + pr
     # mul t6 = (row+pr) * j
     mul     $t6, $t5, $s1        # (pseudo-instr; SPIM/MARS ok)
-    addu    $t7, $t1, $t4        # t7 = col + pc
-    addu    $t6, $t6, $t7        # t6 = linear index in frame
+    add    $t7, $t1, $t4        # t7 = col + pc
+    add    $t6, $t6, $t7        # t6 = linear index in frame
     sll     $t6, $t6, 2          # *4 (word address)
-    addu    $t6, $a1, $t6        # t6 = &frame[row+pr][col+pc]
+    add    $t6, $a1, $t6        # t6 = &frame[row+pr][col+pc]
     lw      $t5, 0($t6)          # t5 = frameVal
 
     # Compute window index: pr*l + pc 
     mul     $t6, $t3, $s3
-    addu    $t6, $t6, $t4
+    add    $t6, $t6, $t4
     sll     $t6, $t6, 2
-    addu    $t6, $a2, $t6        # t6 = &window[pr][pc]
+    add    $t6, $a2, $t6        # t6 = &window[pr][pc]
     lw      $t7, 0($t6)          # t7 = windowVal
 
     # abs(frameVal - windowVal)
-    subu    $t6, $t5, $t7        # t6 = diff
+    sub    $t6, $t5, $t7        # t6 = diff
     bltz    $t6, SAD_ABS_NEG
 SAD_ABS_OK:
     # t6 already non-negative
-    nop
-    b       SAD_ACCUM
+    j       SAD_ACCUM
 SAD_ABS_NEG:
-    subu    $t6, $zero, $t6      # t6 = -diff
+    sub    $t6, $zero, $t6      # t6 = -diff
 
 SAD_ACCUM:
-    addu    $t9, $t9, $t6        # SAD += |diff|
+    add    $t9, $t9, $t6        # SAD += |diff|
 
-    addiu   $t4, $t4, 1          # pc++
-    b       SAD_COL_LOOP
+    addi   $t4, $t4, 1          # pc++
+    j       SAD_COL_LOOP
 
 SAD_ROW_NEXT:
-    addiu   $t3, $t3, 1          # pr++
-    b       SAD_ROW_LOOP
+    addi   $t3, $t3, 1          # pr++
+    j       SAD_ROW_LOOP
 
 SAD_DONE:
     #  Compare / record best (<= to prefer latest equal match) 
     # if (t9 <= minSad) { minSad=t9; best=(row,col); }
-    sltu    $t5, $t8, $t9        # t5 = (minSad < SAD) ? 1:0
+    slt    $t5, $t8, $t9        # t5 = (minSad < SAD) ? 1:0
     bne     $t5, $zero, ZZ_AFTER_UPDATE   # if minSad < SAD, skip update
     # (SAD <= minSad) -> update
-    move    $t8, $t9             # minSad = SAD
-    move    $s6, $t0             # bestRow = row
-    move    $s7, $t1             # bestCol = col
+    addi    $t8, $t9, 0            # minSad = SAD
+    addi    $s6, $t0, 0             # bestRow = row
+    addi    $s7, $t1, 0             # bestCol = col
 
 ZZ_AFTER_UPDATE:
     # If this was the last cell, finish
     beq     $t0, $s4, ZZ_CHECK_LAST_COL   # row==maxRow ?
-    b       ZZ_NEXT_STEP
+    j       ZZ_NEXT_STEP
 ZZ_CHECK_LAST_COL:
     bne     $t1, $s5, ZZ_NEXT_STEP        # if col != maxCol -> continue
-    b       ZZ_FINISH                      # else (row==maxRow && col==maxCol) -> done
+    j       ZZ_FINISH                      # else (row==maxRow && col==maxCol) -> done
 
 ZZ_NEXT_STEP:
     #  Zig-zag next (row,col) 
@@ -905,43 +904,43 @@ ZZ_NEXT_STEP:
     beq     $t0, $s4, ZZ_HIT_BOTTOM_DL    # bottom edge? go right, switch
     beq     $t1, $zero, ZZ_HIT_LEFT_DL    # left edge? go down, switch
     # normal down-left step
-    addiu   $t0, $t0, 1                   # row++
-    addiu   $t1, $t1, -1                  # col--
-    b       ZZ_LOOP_EVAL
+    addi   $t0, $t0, 1                   # row++
+    addi   $t1, $t1, -1                  # col--
+    j       ZZ_LOOP_EVAL
 
 ZZ_HIT_BOTTOM_DL:
-    addiu   $t1, $t1, 1                   # col++
+    addi   $t1, $t1, 1                   # col++
     move    $t2, $zero                    # dirDown = 0 (now up-right)
-    b       ZZ_LOOP_EVAL
+    j       ZZ_LOOP_EVAL
 
 ZZ_HIT_LEFT_DL:
-    addiu   $t0, $t0, 1                   # row++
-    move    $t2, $zero                    # dirDown = 0 (now up-right)
-    b       ZZ_LOOP_EVAL
+    addi   $t0, $t0, 1                   # row++
+    addi    $t2, $zero, 0                    # dirDown = 0 (now up-right)
+    j       ZZ_LOOP_EVAL
 
 ZZ_MOVE_UPRIGHT:
     # Moving up-right 
     beq     $t1, $s5, ZZ_HIT_RIGHT_UR     # right edge? go down, switch
     beq     $t0, $zero, ZZ_HIT_TOP_UR     # top edge? go right, switch
     # normal up-right step
-    addiu   $t0, $t0, -1                  # row--
-    addiu   $t1, $t1, 1                   # col++
-    b       ZZ_LOOP_EVAL
+    addi   $t0, $t0, -1                  # row--
+    addi   $t1, $t1, 1                   # col++
+    j       ZZ_LOOP_EVAL
 
 ZZ_HIT_RIGHT_UR:
-    addiu   $t0, $t0, 1                   # row++
-    li      $t2, 1                        # dirDown = 1
-    b       ZZ_LOOP_EVAL
+    addi   $t0, $t0, 1                   # row++
+    addi    $t2, $zero, 1                        # dirDown = 1
+    j       ZZ_LOOP_EVAL
 
 ZZ_HIT_TOP_UR:
-    addiu   $t1, $t1, 1                   # col++
-    li      $t2, 1                        # dirDown = 1
-    b       ZZ_LOOP_EVAL
+    addi   $t1, $t1, 1                   # col++
+    addi    $t2, $zero, 1                 # dirDown = 1
+    j       ZZ_LOOP_EVAL
 
 ZZ_FINISH:
     # Write return values 
-    move    $v0, $s6        # best row
-    move    $v1, $s7        # best col
+    addi    $v0, $s6, 0        # best row
+    addi    $v1, $s7, 0        # best col
 
     # Epilogue: restore and return 
     lw      $ra, 36($sp)
@@ -953,7 +952,7 @@ ZZ_FINISH:
     lw      $s5, 12($sp)
     lw      $s6,  8($sp)
     lw      $s7,  4($sp)
-    addiu   $sp, $sp, 40
+    addi   $sp, $sp, 40
     jr      $ra
 
 
@@ -963,3 +962,4 @@ ZZ_FINISH:
 
 
     
+
