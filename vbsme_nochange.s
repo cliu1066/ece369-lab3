@@ -819,7 +819,7 @@ vbsme:
     sub    $s5, $s1, $s3     # s5 = maxCol (j-l)
 
     # Initilizing the best result and current position
-    addi    $t8, $zero, 0x7fffffff   # t8 = minSad = "infinity" 
+    addi    $t8, $zero, 32767   # t8 = minSad = "infinity" 
     addi    $s6, $zero, 0        # s6 = bestRow 
     addi    $s7, $zero, 0        # s7 = bestCol
     addi    $t0, $zero, 0        # t0 = row = 0
@@ -962,4 +962,5 @@ ZZ_FINISH:
 
 
     
+
 
